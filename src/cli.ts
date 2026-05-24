@@ -119,6 +119,8 @@ export function resolveConfig(overrides: ParsedArgs): AppConfig {
     timeoutSec: overrides.timeoutSec ?? 120,
   };
 
+  config.baseUrl = config.baseUrl.replace(/\/+$/, "");
+
   // Resolve API key: flag > env var
   if (!config.apiKey) {
     config.apiKey = process.env["CODE_AGENT_API_KEY"] ?? "";
