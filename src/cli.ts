@@ -3,7 +3,7 @@
 import * as readline from "node:readline";
 import type { Message } from "./api.js";
 import { sendCompletion } from "./api.js";
-import { readFileDefinition } from "./tools.js";
+import { readFileDefinition, listFilesDefinition } from "./tools.js";
 
 const USAGE = `Usage: ampcode-in-ts [options]
 
@@ -131,7 +131,7 @@ export function resolveConfig(overrides: ParsedArgs): AppConfig {
 }
 
 async function run(config: AppConfig): Promise<void> {
-  const tools = [readFileDefinition];
+  const tools = [readFileDefinition, listFilesDefinition];
 
   const messages: Message[] = [
     { role: "system", content: config.systemMsg },
