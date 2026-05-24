@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
 import { join, relative, resolve, sep, posix } from "node:path";
 import type { ToolDefinition } from "./api.js";
 
@@ -65,4 +65,56 @@ export const listFilesDefinition: ToolDefinition = {
     additionalProperties: false,
   },
   function: listFiles,
+};
+
+export function editFile(input: unknown): string {
+  const { path, old_string, new_string } = input as {
+    path: string;
+    old_string: string;
+    new_string: string;
+  };
+
+  if (old_string === "") {
+    writeFileSync(path, new_string, "utf-8");
+    return `File ${path} written successfully.`;
+  }
+
+  if (!existsSync(path)) {
+    throw new Error(`File not found: ${path}`);
+  }
+
+  const content = readFileSync(path, "utf-8");
+  const updated = content.replace(old_string, new_string);
+  if (updated === content) {
+    throw new Error(`old_string not found in ${path}`);
+  }
+
+  writeFileSync(path, updated, "utf-8");
+  return `File ${path} written successfully.`;
+}
+
+export const editFileDefinition: ToolDefinition = {
+  name: "edit_file",
+  description:
+    "Make a single string replacement in a file. Replaces the first occurrence of old_string with new_string.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      path: {
+        type: "string",
+        description: "The relative path of the file to edit.",
+      },
+      old_string: {
+        type: "string",
+        description: "The existing text to replace.",
+      },
+      new_string: {
+        type: "string",
+        description: "The new text to insert in place of old_string.",
+      },
+    },
+    required: ["path", "old_string", "new_string"],
+    additionalProperties: false,
+  },
+  function: editFile,
 };
